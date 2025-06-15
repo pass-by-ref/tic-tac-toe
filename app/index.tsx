@@ -37,6 +37,8 @@ class AIPlayer implements Player {
   }
 
   notify(state: GameState) {
+    if (isGameComplete(state.boardState, state.players)) return
+  
     // For now, just select a random empty space
     const emptySpaces: {row: number, col: number}[] = [];
     for (let row = 0; row < 3; row++) {
