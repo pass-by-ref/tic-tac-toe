@@ -1,13 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect} from 'react';
 import { Button, StyleSheet, Modal} from 'react-native';
 
 import { View, Text } from "react-native"
 import { Board, Team, Choice } from "./board";
-
-interface Player {
-  name: string;
-  symbol: Team;
-}
 
 interface GameState {
   players: Player[];
@@ -15,6 +10,50 @@ interface GameState {
   boardState: Choice[][];
   makeMove: (row: number, col: number) => void;
   newGame: () => void;
+}
+
+interface Player {
+  name: string;
+  symbol: Team;
+  notify?: (state: GameState) => void; // Used to notify the player of their turn
+}
+
+class HumanPlayer implements Player {
+  name: string;
+  symbol: Team;
+  constructor(name: string, symbol: Team) {
+    this.name = name;
+    this.symbol = symbol;
+  }
+}
+
+class AIPlayer implements Player {
+  name: string;
+  symbol: Team;
+
+  constructor(name: string, symbol: Team) {
+    this.name = name;
+    this.symbol = symbol;
+  }
+
+  notify(state: GameState) {
+    // For now, just select a random empty space
+    const emptySpaces: {row: number, col: number}[] = [];
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 3; col++) {
+        if (state.boardState[row][col] === null) {
+          emptySpaces.push({row, col});
+        }
+      }
+    }
+    const randomSpace = emptySpaces[Math.floor(Math.random() * emptySpaces.length)];
+    if (randomSpace) {
+      setTimeout(() => {
+        // Simulate AI thinking time
+        state.makeMove(randomSpace.row, randomSpace.col);
+      }, 750)
+    }
+  }
 }
 
 const useBoardState = () => {
@@ -80,8 +119,8 @@ function getGameResult(boardState: Choice[][], players: Player[]): string {
 
 export default function HomeScreen() {
   const gameState = createGame([
-    { name: "Player X", symbol: "X" },
-    { name: "Player O", symbol: "O" },
+    new HumanPlayer("Player X", "X"),
+    new AIPlayer("Player O", "O"),
   ]);
   const {
     players,
@@ -91,6 +130,16 @@ export default function HomeScreen() {
     newGame, 
   } = gameState;
 
+  useEffect(() => {
+    currentPlayer.notify?.(gameState);
+  }, [gameState.currentPlayer])
+
+  const handlePress = (row: number, col: number) => {
+    // Don't allow human to make moves while AI is playing
+    if (currentPlayer instanceof AIPlayer) return;
+    makeMove(row, col);
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Tic-Tac-Toe</Text>
@@ -98,13 +147,12 @@ export default function HomeScreen() {
       <Board
         style={{width: "100%", marginTop: 20}}
         state={boardState}
-        onPress={makeMove}  
+        onPress={handlePress}  
       />
       
       <Modal
         transparent={true}
         visible={isGameComplete(boardState, players)}
-        animationType="fade"
       >
         <View style={styles.modalBackground}>
           <View style={styles.modalContainer}>
