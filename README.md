@@ -1,8 +1,8 @@
 # How to install development version of the app
 1) Install expo from the app store (https://apps.apple.com/us/app/expo-go/id982107779)
-2) Install the app by scanning this QR code
+2) Install the app through this [link](exp+://expo-development-client/?url=https://u.expo.dev/b39dedf7-5774-42ea-a1b2-096899e62cfa/group/3c09e2b3-369d-4d74-a0df-b13ee9490b69) or by scanning this QR code
   
-![image](https://github.com/user-attachments/assets/1697ada8-66ec-4853-865f-154e3495f56e)
+![image](https://github.com/user-attachments/assets/822a2e66-cfc5-423b-af4a-203b90748017)
 
    
 ## Troubleshoot
